@@ -1,6 +1,9 @@
 import React from 'react'
 import { PhotoCardWithQuery } from '../container/PhotoCardWithQuery'
+import { Layout } from '../components/Layout'
 
 export const Detail = ({ id }) => (
-  <PhotoCardWithQuery id={id} />
+  <Layout title={`Fotografia ${id}`}>
+    <PhotoCardWithQuery id={id} />
+  </Layout>
 )

@@ -1,14 +1,13 @@
-import React from 'react'
-import Context from '../Context'
+import React, { useContext } from 'react'
+import { Context } from '../Context'
 import { UserForm } from '../components/UserForm'
 import { RegisterMutation } from '../container/RegisterMutation'
+import { LoginMutation } from '../container/LoginMutation'
 
-export const NotRegisteredUser = () => (
-  <Context.Consumer>
-    {
-      ({ activateAuth }) => {
-        return (
-          <>
+export const NotRegisteredUser = () => {
+  const { activateAuth } = useContext(Context)
+
+  return <>
             <RegisterMutation>
               {
                 (register, { data, loading, error }) => {
@@ -16,7 +15,10 @@ export const NotRegisteredUser = () => (
                     const input = { email, password }
                     const variables = { input }
                     register({ variables })
-                      .then(activateAuth)
+                      .then(({ data }) => {
+                        const { signup } = data
+                        activateAuth(signup)
+                      })
                   }
 
                   const errorMsg = error && 'El usuario ya existe o hay algun problema.'
@@ -25,10 +27,23 @@ export const NotRegisteredUser = () => (
                 }
               }
             </RegisterMutation>
-            <UserForm title='Iniciar sesion' onSubmit={activateAuth} />
+            <LoginMutation>
+              {
+                (login, { data, loading, error }) => {
+                  const onSubmit = ({ email, password }) => {
+                    const input = { email, password }
+                    const variables = { input }
+                    login({ variables })
+                      .then(({ data }) => {
+                        const { login } = data
+                        activateAuth(login)
+                      })
+                  }
+
+                  const errorMsg = error && 'Credenciales incorrectas o hay algun problema.'
+                  return <UserForm disabled={loading} error={errorMsg} title='Iniciar sesion' onSubmit={onSubmit} />
+                }
+              }
+            </LoginMutation>
           </>
-        )
-      }
-    }
-  </Context.Consumer>
-)
+}
